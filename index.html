@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f6b56">
+  <meta name="description" content="HAKISS MicroPython Firmware Flasher cho ESP32-S3 DevKitC-1 N16R8. Nạp firmware qua USB trên trình duyệt.">
+  <title>HAKISS | Nạp MicroPython cho ESP32-S3</title>
+  <link rel="manifest" href="app.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+  <style>
+    :root {color-scheme: light; --green:#14835f;--dark:#0d6653;--blue:#1a5ea0;--ink:#152c3c;--muted:#5c6e7b;--line:#dee8ec;--bg:#f3f8fa;}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:radial-gradient(circle at 85% -10%,#e4f8ee 0%,transparent 43%),linear-gradient(145deg,#f1f7fc,#f8fafb 80%);font:15px/1.55 system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:var(--ink)}
+    header{max-width:1020px;margin:0 auto;padding:27px 24px 14px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
+    .mark{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(135deg,var(--green),var(--blue));color:white;font-size:23px;font-weight:800;letter-spacing:-2px}
+    .brand strong{font-size:19px;letter-spacing:.2px;color:var(--dark)}
+    .brand small{display:block;color:var(--muted);font-size:11.5px;line-height:1.2}
+    .chip{padding:6px 11px;border:1px solid #c8e9d8;background:#eaf8f0;border-radius:24px;color:#156447;font-size:12px;font-weight:700}
+    main{max-width:1020px;margin:12px auto 0;padding:0 24px 40px;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(270px,1fr);gap:22px}
+    .panel{background:#fff;border:1px solid #e6eff1;border-radius:22px;box-shadow:0 10px 36px rgba(15,66,90,.055);padding:30px}
+    .eyebrow{font-size:12px;font-weight:800;letter-spacing:1.25px;color:var(--green);text-transform:uppercase}
+    h1{font-size:clamp(24px,3.3vw,35px);line-height:1.23;margin:9px 0 10px;letter-spacing:-.6px}
+    .intro{color:var(--muted);margin:0 0 23px}
+    .firmware{border:1px solid #d6e9e5;border-radius:14px;background:linear-gradient(120deg,#f0faf7,#f7fbfe);padding:16px;display:flex;gap:14px;align-items:start;margin-bottom:19px}
+    .firmware-ico{flex:none;width:42px;height:42px;border-radius:12px;background:#d8f1e8;display:grid;place-items:center;font-size:23px}
+    .fw-head{font-weight:800;font-size:15px;margin-top:1px}
+    .fw-sub{color:var(--muted);font-size:12.5px;margin-top:3px}
+    .fw-data{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+    .pill{border:1px solid #cdddde;background:white;border-radius:7px;padding:3px 7px;font-size:11.5px;font-weight:700;color:#47636a}
+    .checkline{display:flex;align-items:start;gap:10px;margin:12px 0 16px;cursor:pointer;color:#314755;font-size:13px}
+    .checkline input{accent-color:var(--green);margin-top:3px;width:17px;height:17px;flex:none}
+    .action-area{min-height:56px}
+    esp-web-install-button{display:block;width:100%;--esp-tools-button-color:var(--green);--esp-tools-button-text-color:white;--esp-tools-button-border-radius:12px}
+    .install-button{width:100%;border:0;background:linear-gradient(112deg,var(--green),var(--dark));box-shadow:0 6px 16px rgba(20,131,95,.17);padding:14px 15px;color:white;border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;line-height:1.5;cursor:pointer;transition:filter .2s}
+    .install-button:hover:not(:disabled){filter:brightness(1.06)}
+    .install-button:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
+    .status{padding:11px 13px;border-radius:10px;background:#f0f5fa;color:#52687b;font-size:12.5px;margin:13px 0 0}
+    .status.ok{background:#edf9f3;color:#236a4b}
+    .status.err{background:#fff4ee;color:#9c481e}
+    .warn{margin-top:18px;border-left:3px solid #d08a24;padding:10px 13px;background:#fff9ef;color:#72501d;border-radius:4px 9px 9px 4px;font-size:12.5px}
+    h2{margin:0 0 19px;font-size:18px;letter-spacing:-.2px}
+    .step{display:flex;gap:12px;position:relative;padding-bottom:23px}
+    .step:last-of-type{padding-bottom:8px}
+    .step:not(:last-of-type):before{content:"";position:absolute;top:30px;left:15px;width:1px;height:calc(100% - 35px);background:#d5e8e3}
+    .num{flex:none;width:31px;height:31px;border-radius:50%;background:#e4f3ed;display:grid;place-items:center;color:var(--green);font-weight:900;font-size:13px}
+    .step strong{font-size:14px;display:block;padding-top:2px}
+    .step p{color:var(--muted);font-size:13px;margin:4px 0 0}
+    .tip{background:#f4f8fc;border:1px solid #e0eafa;border-radius:12px;padding:14px;font-size:12.5px;color:#536a81;margin-top:11px}
+    .tip strong{color:#225689}
+    footer{max-width:1020px;margin:0 auto;padding:0 24px 26px;font-size:12px;color:#7a8c97;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+    a{color:var(--blue)}
+    .hidden{display:none}
+    @media(max-width:750px){main{grid-template-columns:1fr;gap:15px}header{padding:18px 18px 12px}main{padding:0 15px 22px}.panel{padding:23px 20px;border-radius:17px}footer{padding:0 18px 22px}.chip{font-size:10px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand"><div class="mark" aria-hidden="true">H</div><div><strong>HAKISS</strong><small>Thiết bị &amp; lập trình giáo dục</small></div></div>
+    <div class="chip">ESP32-S3 · N16R8</div>
+  </header>
+  <main>
+    <section class="panel" aria-label="Công cụ nạp MicroPython">
+      <div class="eyebrow">Firmware Flash Tool</div>
+      <h1>Nạp MicroPython<br>cho ESP32-S3</h1>
+      <p class="intro">Xóa Flash và cài lại firmware MicroPython trực tiếp qua USB. Không cần Arduino IDE, PlatformIO hay phần mềm nạp riêng.</p>
+      <div class="firmware">
+        <div class="firmware-ico" aria-hidden="true">⚡</div>
+        <div>
+          <div class="fw-head">MicroPython v1.29.0</div>
+          <div class="fw-sub">ESP32_GENERIC_S3-SPIRAM_OCT · Bản chính thức (24/08/2026)</div>
+          <div class="fw-data"><span class="pill">ESP32-S3</span><span class="pill">Flash 16 MB</span><span class="pill">PSRAM 8 MB</span><span class="pill">Offset 0x0</span></div>
+        </div>
+      </div>
+      <label class="checkline" for="accept"><input type="checkbox" id="accept"><span>Tôi hiểu rằng việc xóa Flash sẽ <strong>xóa chương trình Python, tệp tin và cấu hình</strong> đang lưu trên ESP32-S3.</span></label>
+      <div class="action-area">
+        <esp-web-install-button id="installer" manifest="manifest.json">
+          <button id="flash" class="install-button" type="button" slot="activate" disabled>XÓA FLASH &amp; NẠP MICROPYTHON</button>
+          <div class="status err" slot="unsupported">Trình duyệt chưa hỗ trợ nạp qua USB. Hãy sử dụng Google Chrome hoặc Microsoft Edge trên máy tính.</div>
+          <div class="status err" slot="not-allowed">Hãy mở website bằng HTTPS hoặc localhost (không dùng HTTP thường hoặc iframe bị hạn chế).</div>
+        </esp-web-install-button>
+      </div>
+      <p id="status" class="status" role="status" aria-live="polite">Đang kiểm tra tệp firmware...</p>
+      <div class="warn"><strong>Lưu ý:</strong> Chỉ hỗ trợ ESP32-S3 DevKitC-1 phiên bản N16R8 có PSRAM Octal. Nạp MicroPython gốc sẽ không tự khôi phục các file <code>main.py</code>, <code>supervisor.py</code> hay thư viện HAKISS WebCode.</div>
+    </section>
+    <aside class="panel" aria-label="Hướng dẫn">
+      <h2>Hướng dẫn nạp firmware</h2>
+      <div class="step"><div class="num">1</div><div><strong>Kết nối USB</strong><p>Cắm cáp có truyền dữ liệu từ ESP32-S3 vào máy tính. Đóng Serial Monitor và các ứng dụng đang dùng cổng COM.</p></div></div>
+      <div class="step"><div class="num">2</div><div><strong>Xác nhận xóa Flash</strong><p>Đánh dấu ô xác nhận rồi nhấn nút màu xanh để mở trình nạp.</p></div></div>
+      <div class="step"><div class="num">3</div><div><strong>Chọn đúng cổng COM</strong><p>Trình duyệt sẽ yêu cầu quyền kết nối USB. Chọn cổng của ESP32-S3 rồi xác nhận.</p></div></div>
+      <div class="step"><div class="num">4</div><div><strong>Cài đặt và khởi động</strong><p>Chọn cài đặt trong hộp thoại, theo dõi tiến độ. Khi hoàn tất, nhấn RST/EN nếu bo chưa tự khởi động.</p></div></div>
+      <div class="tip"><strong>Nếu không kết nối được:</strong> Giữ <strong>BOOT</strong> → nhấn rồi thả <strong>RST/EN</strong> → thả BOOT để vào chế độ Download, sau đó thử lại.</div>
+      <div class="tip">Ứng dụng cần <strong>HTTPS</strong> và trình duyệt hỗ trợ Web Serial. Không nhúng trang này vào Google Apps Script vì quyền truy cập USB có thể bị giới hạn.</div>
+    </aside>
+  </main>
+  <footer><span>© HAKISS · MicroPython ESP32-S3 Firmware Flasher</span><a href="https://micropython.org/download/ESP32_GENERIC_S3/" target="_blank" rel="noopener noreferrer">Nguồn firmware: MicroPython.org</a></footer>
+  <script>
+    (() => {
+      'use strict';
+      const check = document.querySelector('#accept');
+      const flash = document.querySelector('#flash');
+      const status = document.querySelector('#status');
+      let ready = false;
+      const refresh = () => { flash.disabled = !ready || !check.checked; };
+      check.addEventListener('change', refresh);
+      const setStatus = (message, kind = '') => {
+        status.textContent = message;
+        status.className = `status ${kind}`.trim();
+      };
+      async function checkFirmware() {
+        if (!window.isSecureContext || !('serial' in navigator) || document.permissionsPolicy?.allowsFeature?.('serial') === false || document.featurePolicy?.allowsFeature?.('serial') === false) {
+          setStatus('Web Serial không khả dụng. Mở ứng dụng bằng Chrome/Edge trên HTTPS hoặc localhost.', 'err');
+          return;
+        }
+        // Đảm bảo firmware đã được tải lên cùng website trước khi cho phép nạp.
+        try {
+          const [manifestRes, firmwareRes] = await Promise.all([
+            fetch('./manifest.json', {cache: 'no-store'}),
+            fetch('./firmware.bin', {method: 'HEAD', cache: 'no-store'})
+          ]);
+          if (!manifestRes.ok) throw new Error('Không tìm thấy manifest.json');
+          const manifest = await manifestRes.json();
+          if (manifest.builds?.length !== 1 || manifest.builds[0]?.chipFamily !== 'ESP32-S3' || manifest.builds[0]?.parts?.length !== 1 || manifest.builds[0]?.parts?.[0]?.path !== 'firmware.bin' || manifest.builds[0]?.parts?.[0]?.offset !== 0) {
+            throw new Error('manifest.json không đúng cấu hình MicroPython một firmware');
+          }
+          if (!firmwareRes.ok) throw new Error('Không tìm thấy firmware.bin trên website');
+          const len = Number(firmwareRes.headers.get('content-length') || 0);
+          const type = firmwareRes.headers.get('content-type') || '';
+          if (type.includes('text/html') || (len > 0 && len < 200000)) throw new Error('firmware.bin có thể sai hoặc chưa được tải lên');
+          // Chỉ bật nút khi thư viện nạp firmware thật sự đã tải thành công.
+          const libraryReady = await Promise.race([
+            customElements.whenDefined('esp-web-install-button').then(() => true),
+            new Promise(resolve => setTimeout(() => resolve(false), 8000))
+          ]);
+          if (!libraryReady) throw new Error('Không tải được thư viện ESP Web Tools. Hãy kiểm tra Internet');
+          ready = true;
+          setStatus('Đã sẵn sàng. Cắm ESP32-S3 qua USB và đánh dấu xác nhận để nạp.', 'ok');
+        } catch (error) {
+          ready = false;
+          setStatus(`Chưa thể nạp: ${error.message}. Quản trị viên cần đưa đúng firmware.bin lên website.`, 'err');
+        }
+        refresh();
+      }
+      checkFirmware();
+    })();
+  </script>
+</body>
+</html>

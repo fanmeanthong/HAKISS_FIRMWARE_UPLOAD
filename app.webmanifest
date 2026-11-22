@@ -1,0 +1,11 @@
+{
+  "name": "HAKISS MicroPython Flasher",
+  "short_name": "HAKISS Flash",
+  "description": "Nạp MicroPython cho ESP32-S3 DevKitC-1 N16R8 qua USB",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f8fa",
+  "theme_color": "#0f6b56",
+  "icons": [{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
